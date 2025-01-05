@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { addClient, getClients } from "../src/firebaseClient";
 
 export default function ClientsPage() {
-  const [clients, setClients] = useState<any[]>([]);
+  interface Client {
+    id: string;
+    name: string;
+  }
+  
+  const [clients, setClients] = useState<Client[]>([]);
+  
   const [newClient, setNewClient] = useState("");
   const [error, setError] = useState("");
 

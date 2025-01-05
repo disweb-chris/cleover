@@ -5,12 +5,26 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<any[]>([]);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [clients, setClients] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
   const router = useRouter();
+
+  interface Project {
+    id: string;
+    name: string;
+    description: string;
+    clientId: string;
+  }
+  
+  interface Client {
+    id: string;
+    name: string;
+  }
+  
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  
 
   // ✅ Función para cerrar sesión
   const handleLogout = async () => {

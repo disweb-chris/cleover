@@ -10,44 +10,56 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Función para validar el email
+  // ✅ Función para validar el email
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  // ✅ Función para iniciar sesión
   const handleLogin = async () => {
+    setError(""); // Limpiar errores anteriores
+
     if (!email || !password) {
       setError("Por favor, completa todos los campos.");
       return;
     }
+
     if (!isValidEmail(email)) {
-      setError("Por favor, ingresa un email válido.");
+      setError("Por favor, ingresa un correo electrónico válido.");
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
+      router.push("/dashboard"); // ✅ Redirigir al Dashboard después de iniciar sesión
+    } catch (err) {
+      if (err instanceof Error) {
+        setError("Error al iniciar sesión: " + err.message);
+      }
     }
   };
 
+  // ✅ Función para registrarse
   const handleRegister = async () => {
+    setError(""); // Limpiar errores anteriores
+
     if (!email || !password) {
       setError("Por favor, completa todos los campos.");
       return;
     }
+
     if (!isValidEmail(email)) {
-      setError("Por favor, ingresa un email válido.");
+      setError("Por favor, ingresa un correo electrónico válido.");
       return;
     }
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
+      router.push("/dashboard"); // ✅ Redirigir al Dashboard después de registrarse
+    } catch (err) {
+      if (err instanceof Error) {
+        setError("Error al registrarse: " + err.message);
+      }
     }
   };
 
