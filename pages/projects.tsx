@@ -4,45 +4,43 @@ import { db, auth } from "../src/firebaseClient";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 
-export default function ProjectsPage() {
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [selectedClientId, setSelectedClientId] = useState("");
-  const router = useRouter();
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  clientId: string;
+}
 
-  interface Project {
-    id: string;
-    name: string;
-    description: string;
-    clientId: string;
-  }
-  
-  interface Client {
-    id: string;
-    name: string;
-  }
-  
+interface Client {
+  id: string;
+  name: string;
+}
+
+export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [newProjectName, setNewProjectName] = useState<string>("");
+  const [newProjectDescription, setNewProjectDescription] = useState<string>("");
   const [clients, setClients] = useState<Client[]>([]);
-  
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const router = useRouter();
 
   // ✅ Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await signOut(auth); // ✅ Corregido: pasamos `auth` como argumento
       router.push("/login");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
   };
 
-  // ✅ Función para agregar un nuevo proyecto
+  // ✅ Función para agregar un proyecto
   const handleAddProject = async () => {
     if (!newProjectName || !newProjectDescription || !selectedClientId) {
       alert("Por favor, completa todos los campos.");
       return;
     }
-  
+
     try {
       await addDoc(collection(db, "projects"), {
         name: newProjectName,
@@ -51,50 +49,47 @@ export default function ProjectsPage() {
       });
       setNewProjectName("");
       setNewProjectDescription("");
-      fetchProjects(selectedClientId); // Actualizamos la lista de proyectos
+      fetchProjects(selectedClientId);
     } catch (error) {
       console.error("Error al agregar proyecto:", error);
-      alert("Ocurrió un error al agregar el proyecto.");
     }
   };
-  
 
-  // ✅ Función para obtener proyectos desde Firestore
+  // ✅ Función para obtener proyectos
   const fetchProjects = async (clientId: string) => {
     const q = query(collection(db, "projects"), where("clientId", "==", clientId));
     const querySnapshot = await getDocs(q);
-    const projectsData: any[] = [];
+    const projectsData: Project[] = [];
     querySnapshot.forEach((doc) => {
-      projectsData.push({ id: doc.id, ...doc.data() });
+      const data = doc.data() as Omit<Project, "id">;
+      projectsData.push({ id: doc.id, ...data });
     });
     setProjects(projectsData);
-  };
+  };  
 
-  // ✅ Función para obtener clientes desde Firestore
+  // ✅ Función para obtener clientes
   const fetchClients = async () => {
     const querySnapshot = await getDocs(collection(db, "clients"));
-    const clientsData: any[] = [];
+    const clientsData: Client[] = [];
     querySnapshot.forEach((doc) => {
-      clientsData.push({ id: doc.id, ...doc.data() });
+      const data = doc.data() as Omit<Client, "id">;
+      clientsData.push({ id: doc.id, ...data });
     });
     setClients(clientsData);
   };
+  
 
   // ✅ Cargar clientes al iniciar
   useEffect(() => {
-    const init = async () => {
-      await fetchClients();
-    };
-    init();
+    fetchClients();
   }, []);
 
-  // ✅ Cargar proyectos del primer cliente automáticamente si no hay un cliente seleccionado
+  // ✅ Cargar proyectos cuando se selecciona un cliente
   useEffect(() => {
-    if (clients.length > 0 && !selectedClientId) {
-      setSelectedClientId(clients[0].id);
-      fetchProjects(clients[0].id);
+    if (selectedClientId) {
+      fetchProjects(selectedClientId);
     }
-  }, [clients]);
+  }, [selectedClientId]);
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
@@ -104,7 +99,6 @@ export default function ProjectsPage() {
         value={selectedClientId}
         onChange={(e) => {
           setSelectedClientId(e.target.value);
-          fetchProjects(e.target.value);
         }}
       >
         <option value="">Selecciona un cliente</option>
@@ -140,7 +134,6 @@ export default function ProjectsPage() {
         ))}
       </ul>
 
-      {/* ✅ Botón de Logout */}
       <button onClick={handleLogout} style={{ marginTop: "20px" }}>
         Cerrar sesión
       </button>
