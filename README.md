@@ -30,9 +30,3 @@
 
 ```bash
 git clone https://github.com/tu-usuario/cleover.git
-
-📧 Contacto
-Si tienes preguntas o sugerencias, no dudes en contactarme:
-
-Email: disweb.chris@gmail.com
-GitHub: https://github.com/disweb-chris
