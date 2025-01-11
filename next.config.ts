@@ -16,7 +16,13 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://firebasestorage.googleapis.com; connect-src 'self' https://firestore.googleapis.com;",
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com;
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' data: https://firebasestorage.googleapis.com;
+              connect-src 'self' https://securetoken.googleapis.com https://*.googleapis.com https://*.firebaseio.com https://firestore.googleapis.com https://firebasestorage.googleapis.com;
+            `.replace(/\n/g, ''),
           },
           {
             key: 'Referrer-Policy',
